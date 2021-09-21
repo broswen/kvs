@@ -9,6 +9,8 @@ A key value webservice that is cached with Redis and backed by Postgres.
 `GET /{key}` to return the saved item
 
 ```json
+{
   "key": "key here",
   "value": "value here"
+}
 ```
