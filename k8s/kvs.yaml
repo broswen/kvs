@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kvs
+data:
+  port: "8080"
+  ttl: "3600"
+  postgres.host: postgres
+  postgres.port: "5432"
+  postgres.user: kvs
+  postgres.pass: password
+  postgres.db: kvs
+  redis.host: kubicle
+  redis.port: "6379"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kvs
+spec:
+  selector:
+    app: kvs
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kvs
+spec:
+  selector:
+    matchLabels:
+      app: kvs
+  template:
+    metadata:
+      labels:
+        app: kvs
+    spec:
+      containers:
+        - name: kvs
+          image: kvs
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: port
+                  name: kvs
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.host
+                  name: kvs
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.port
+                  name: kvs
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.user
+                  name: kvs
+            - name: POSTGRES_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: postgres.pass
+                  name: kvs
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.db
+                  name: kvs
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: redis.host
+                  name: kvs
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: redis.port
+                  name: kvs
+          ports:
+            - containerPort: 8080
