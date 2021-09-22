@@ -5,12 +5,11 @@ metadata:
 data:
   port: "8080"
   ttl: "3600"
-  postgres.host: postgres
+  postgres.host: kvs-postgres
   postgres.port: "5432"
   postgres.user: kvs
-  postgres.pass: password
   postgres.db: kvs
-  redis.host: kubicle
+  redis.host: localhost
   redis.port: "6379"
 
 ---
@@ -89,3 +88,11 @@ spec:
                   name: kvs
           ports:
             - containerPort: 8080
+        - name: redis
+          image: redis
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 6379

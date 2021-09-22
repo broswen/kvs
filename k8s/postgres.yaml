@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: kvs-postgres
 spec:
   selector:
-    app: postgres
+    app: kvs-postgres
   ports:
     - port: 5432
       targetPort: 5432
@@ -13,22 +13,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: kvs-postgres
 spec:
   selector:
     matchLabels:
-      app: postgres
+      app: kvs-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: kvs-postgres
     spec:
       volumes:
-        - name: postgres-pvc
+        - name: kvs-postgres-pvc
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: kvs-postgres-pvc
       containers:
-        - name: postgres
+        - name: kvs-postgres
           image: postgres
           resources:
             limits:
@@ -39,29 +39,29 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: postgres.user
-                  name: kubicle-backend
+                  name: kvs
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: postgres.pass
-                  name: kubicle-secrets
+                  name: kvs
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   key: postgres.db
-                  name: kubicle-backend
+                  name: kvs
           ports:
             - containerPort: 5432
           volumeMounts:
-            - name: postgres-pvc
+            - name: kvs-postgres-pvc
               mountPath: /var/lib/postgresql/data
-              subPath: postgres
+              subPath: kvs/postgres
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
+  name: kvs-postgres-pvc
 spec:
   resources:
     requests:
@@ -75,7 +75,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-pv
+  name: kvs-postgres-pv
 spec:
   capacity:
     storage: 5Gi
