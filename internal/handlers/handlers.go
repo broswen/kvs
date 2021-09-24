@@ -43,10 +43,12 @@ func GetHandler(itemService items.ItemGetterSetter) http.HandlerFunc {
 			return
 		}
 
-		render.Render(w, r, &GetResponse{
-			Key:   item.Key,
-			Value: item.Value,
-		})
+		_, err = w.Write([]byte(item.Value))
+		if err != nil {
+			oplog.Err(err).Msg("error getting item")
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
 
 	}
 }
