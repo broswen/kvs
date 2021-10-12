@@ -7,6 +7,7 @@ RUN go get -d -v ./...
 # copy go src file(s)
 COPY ./cmd ./cmd
 COPY ./internal ./internal
+COPY ./pkg ./pkg
 # build the binary
 RUN GOOS=linux GOARCH=amd64 go build -o kvs ./cmd/main.go
 
