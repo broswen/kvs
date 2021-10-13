@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres-deployment
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres-pod
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres-pod
+    spec:
+      volumes:
+        - name: kvs-postgres-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-postgres-pvc
+      containers:
+        - name: kvs-postgres
+          image: postgres
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.user
+                  name: {{ .Release.Name }}-configmap
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres.pass
+                  name: {{ .Release.Name }}-secret
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres.db
+                  name: {{ .Release.Name }}-configmap
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: kvs-postgres-pvc
+              mountPath: /var/lib/postgresql/data
+              subPath: kvs/postgres
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-postgres-pvc
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-postgres-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/storage
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - silverstone

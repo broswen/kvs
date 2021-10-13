@@ -9,3 +9,15 @@ A key value webservice that is cached with Redis and backed by Postgres.
 `POST /{key}` with the request body as the `value`
 
 `GET /{key}` to return the `value` in the response body
+
+Pass the `-grpc` to the binary on startup to enable the gRPC server instead of json. The gRPC spec is in `/pkg/kvs`.
+
+Set the `PORT` environment variable to define the port the service listens on.
+
+Set the `TTL` environment variable to define how long Redis will cache key values.
+
+
+### Other
+The `/k8s` directory contains relevant Kubernetes files to deploy in a cluster.
+
+The `/k8s/helm` directory contains the Helm Chart to easily deploy the system, based on the files in the parent directory.
