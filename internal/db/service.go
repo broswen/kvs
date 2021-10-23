@@ -51,3 +51,12 @@ func (dbs DBService) Set(item item.Item) error {
 	}
 	return nil
 }
+
+func (dbs DBService) Delete(key string) error {
+	item := items.Item{Key: key}
+	tx := dbs.db.Delete(&item)
+	if tx.Error != nil {
+		return items.ErrService{Err: tx.Error}
+	}
+	return nil
+}

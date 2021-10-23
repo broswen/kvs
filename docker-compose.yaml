@@ -4,7 +4,7 @@ services:
     build: .
     command: sh -c "
       sleep 4 &&
-      ./bin/kvs -grpc"
+      ./bin/kvs"
     environment:
       - PORT=8080
       - TTL=10

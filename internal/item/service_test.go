@@ -2,6 +2,8 @@ package item
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -25,6 +27,11 @@ func (m MapItemGetterSetter) Get(key string) (Item, error) {
 
 func (m MapItemGetterSetter) Set(item Item) error {
 	m.data[item.Key] = item.Value
+	return nil
+}
+
+func (m MapItemGetterSetter) Delete(key string) error {
+	delete(m.data, key)
 	return nil
 }
 
@@ -134,5 +141,41 @@ func TestGetCache(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("wanted %#v but got %#v\n", want, got)
+	}
+}
+
+func TestDelete(t *testing.T) {
+	cache := newMapItemGetterSetter()
+	db := newMapItemGetterSetter()
+	itemService, err := New(cache, db)
+	if err != nil {
+		t.Fatalf("ItemService.New: %v\n", err)
+	}
+	want := Item{Key: "key", Value: "value"}
+	// set item in service
+	// should propagate to db and cache
+	err = itemService.Set(want)
+	if err != nil {
+		t.Fatalf("ItemService.Set: %v\n", err)
+	}
+
+	got, err := itemService.Get(want.Key)
+	if err != nil {
+		t.Fatalf("ItemService.Get: %v\n", err)
+	}
+	if got != want {
+		t.Fatalf("wanted %#v but got %#v\n", want, got)
+	}
+
+	err = itemService.Delete(want.Key)
+	if err != nil {
+		t.Fatalf("ItemService.Set: %v\n", err)
+	}
+
+	got, err = itemService.Get(want.Key)
+	fmt.Println(err.Error())
+	fmt.Println(reflect.TypeOf(err))
+	if err == nil {
+		t.Fatalf("ItemService.Get: %v\n", "item should be missing")
 	}
 }

@@ -39,6 +39,7 @@ func (e ErrService) Error() string {
 type ItemGetterSetter interface {
 	Get(string) (Item, error)
 	Set(Item) error
+	Delete(string) error
 }
 
 type ItemService struct {
@@ -97,5 +98,18 @@ func (is ItemService) Set(item Item) error {
 		return ErrService{err}
 	}
 
+	return nil
+}
+
+func (is ItemService) Delete(key string) error {
+	err := is.db.Delete(key)
+	if err != nil {
+		return ErrService{err}
+	}
+
+	err = is.cache.Delete(key)
+	if err != nil {
+		return ErrService{err}
+	}
 	return nil
 }

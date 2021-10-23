@@ -89,3 +89,31 @@ func SetHandler(itemService item.ItemService) http.HandlerFunc {
 		render.Render(w, r, &SetResponse{})
 	}
 }
+
+type DeleteResponse struct {
+}
+
+func (s *DeleteResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func DeleteHandler(itemService item.ItemService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		oplog := httplog.LogEntry(r.Context())
+		var key string
+		if key = chi.URLParam(r, "key"); key == "" {
+			oplog.Warn().Msg("must specify key")
+			render.Render(w, r, ErrInvalidRequest(errors.New("must specify key")))
+			return
+		}
+
+		err := itemService.Delete(key)
+		if err != nil {
+			oplog.Err(err).Msg("error deleting item")
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
+
+		render.Render(w, r, &SetResponse{})
+	}
+}

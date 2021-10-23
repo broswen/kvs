@@ -20,7 +20,16 @@ message GetValueResponse {
   string value = 2;
 }
 
+message DeleteValueRequest {
+  string key = 1;
+}
+
+message DeleteValueResponse {
+  string key = 1;
+}
+
 service KeyValueService {
   rpc SetValue (SetValueRequest) returns (SetValueResponse);
   rpc GetValue (GetValueRequest) returns (GetValueResponse);
+  rpc DeleteValue (DeleteValueRequest) returns (DeleteValueResponse);
 }

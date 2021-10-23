@@ -86,6 +86,7 @@ func (s ChiServer) SetRoutes() {
 
 	s.router.Get("/{key}", handlers.GetHandler(s.itemService))
 	s.router.Post("/{key}", handlers.SetHandler(s.itemService))
+	s.router.Delete("/{key}", handlers.DeleteHandler(s.itemService))
 }
 
 func NewGRPC() (Server, error) {
@@ -147,5 +148,15 @@ func (s GRPCServer) GetValue(ctx context.Context, req *kvs.GetValueRequest) (*kv
 	return &kvs.GetValueResponse{
 		Key:   foundItem.Key,
 		Value: foundItem.Value,
+	}, nil
+}
+
+func (s GRPCServer) DeleteValue(ctx context.Context, req *kvs.DeleteValueRequest) (*kvs.DeleteValueResponse, error) {
+	err := s.itemService.Delete(req.Key)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Server Error")
+	}
+	return &kvs.DeleteValueResponse{
+		Key: req.Key,
 	}, nil
 }

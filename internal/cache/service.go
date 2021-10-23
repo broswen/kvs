@@ -52,3 +52,11 @@ func (cs CacheService) Set(item items.Item) error {
 	}
 	return nil
 }
+
+func (cs CacheService) Delete(key string) error {
+	_, err := cs.rdb.Del(context.Background(), key).Result()
+	if err != nil {
+		return items.ErrItemNotFound{Err: err}
+	}
+	return nil
+}

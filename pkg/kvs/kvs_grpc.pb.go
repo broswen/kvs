@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type KeyValueServiceClient interface {
 	SetValue(ctx context.Context, in *SetValueRequest, opts ...grpc.CallOption) (*SetValueResponse, error)
 	GetValue(ctx context.Context, in *GetValueRequest, opts ...grpc.CallOption) (*GetValueResponse, error)
+	DeleteValue(ctx context.Context, in *DeleteValueRequest, opts ...grpc.CallOption) (*DeleteValueResponse, error)
 }
 
 type keyValueServiceClient struct {
@@ -48,12 +49,22 @@ func (c *keyValueServiceClient) GetValue(ctx context.Context, in *GetValueReques
 	return out, nil
 }
 
+func (c *keyValueServiceClient) DeleteValue(ctx context.Context, in *DeleteValueRequest, opts ...grpc.CallOption) (*DeleteValueResponse, error) {
+	out := new(DeleteValueResponse)
+	err := c.cc.Invoke(ctx, "/KeyValueService/DeleteValue", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KeyValueServiceServer is the server API for KeyValueService service.
 // All implementations must embed UnimplementedKeyValueServiceServer
 // for forward compatibility
 type KeyValueServiceServer interface {
 	SetValue(context.Context, *SetValueRequest) (*SetValueResponse, error)
 	GetValue(context.Context, *GetValueRequest) (*GetValueResponse, error)
+	DeleteValue(context.Context, *DeleteValueRequest) (*DeleteValueResponse, error)
 	mustEmbedUnimplementedKeyValueServiceServer()
 }
 
@@ -66,6 +77,9 @@ func (UnimplementedKeyValueServiceServer) SetValue(context.Context, *SetValueReq
 }
 func (UnimplementedKeyValueServiceServer) GetValue(context.Context, *GetValueRequest) (*GetValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValue not implemented")
+}
+func (UnimplementedKeyValueServiceServer) DeleteValue(context.Context, *DeleteValueRequest) (*DeleteValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteValue not implemented")
 }
 func (UnimplementedKeyValueServiceServer) mustEmbedUnimplementedKeyValueServiceServer() {}
 
@@ -116,6 +130,24 @@ func _KeyValueService_GetValue_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KeyValueService_DeleteValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeyValueServiceServer).DeleteValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/KeyValueService/DeleteValue",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeyValueServiceServer).DeleteValue(ctx, req.(*DeleteValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KeyValueService_ServiceDesc is the grpc.ServiceDesc for KeyValueService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -131,7 +163,11 @@ var KeyValueService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetValue",
 			Handler:    _KeyValueService_GetValue_Handler,
 		},
+		{
+			MethodName: "DeleteValue",
+			Handler:    _KeyValueService_DeleteValue_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "pkg/pb/kvs.proto",
+	Metadata: "kvs.proto",
 }
