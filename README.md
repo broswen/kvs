@@ -10,6 +10,8 @@ A key value webservice that is cached with Redis and backed by Postgres.
 
 `GET /{key}` to return the `value` in the response body
 
+`DELETE /{key}` to delete the `key` `value` pair from the cache and database
+
 Pass the `-grpc` to the binary on startup to enable the gRPC server instead of json. The gRPC spec is in `/pkg/kvs`.
 
 Set the `PORT` environment variable to define the port the service listens on.
