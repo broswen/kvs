@@ -11,8 +11,8 @@ type MapItemGetterSetter struct {
 	data map[string]string
 }
 
-func newMapItemGetterSetter() MapItemGetterSetter {
-	return MapItemGetterSetter{
+func newMapItemGetterSetter() *MapItemGetterSetter {
+	return &MapItemGetterSetter{
 		data: make(map[string]string),
 	}
 }
@@ -33,6 +33,10 @@ func (m MapItemGetterSetter) Set(item Item) error {
 func (m MapItemGetterSetter) Delete(key string) error {
 	delete(m.data, key)
 	return nil
+}
+
+func (m *MapItemGetterSetter) IsNil() bool {
+	return m == nil
 }
 
 func TestErrors(t *testing.T) {

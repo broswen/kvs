@@ -26,5 +26,5 @@ The `/k8s/helm` directory contains the Helm Chart to easily deploy the system, b
 
 ### TODO
 - [x] Add SQLITE_DB env var to use local sqlite db instead of postgres
-- [ ] Add env var to disable redis cache requirement
+- [x] Add env var to disable redis cache requirement
 - [ ] Update Helm chart to take database and cache parameters, but don't manage them

@@ -1,4 +1,6 @@
 FROM golang:alpine AS build
+# add gcc tools
+RUN apk add build-base
 # run build process in /app directory 
 WORKDIR /app
 # copy dependencies and get them
@@ -9,7 +11,7 @@ COPY ./cmd ./cmd
 COPY ./internal ./internal
 COPY ./pkg ./pkg
 # build the binary
-RUN GOOS=linux GOARCH=amd64 go build -o kvs ./cmd/main.go
+RUN GOOS=linux CGO_ENABLED=1 GOARCH=amd64 go build -o kvs ./cmd/main.go
 
 FROM alpine
 # copy the binary from build stage

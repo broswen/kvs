@@ -27,27 +27,33 @@ type Server interface {
 }
 
 type ChiServer struct {
-	cacheService cache.CacheService
-	dbService    db.DBService
-	itemService  item.ItemService
+	cacheService *cache.CacheService
+	dbService    *db.DBService
+	itemService  *item.ItemService
 	logger       zerolog.Logger
 	router       chi.Router
 }
 
 type GRPCServer struct {
 	kvs.UnimplementedKeyValueServiceServer
-	cacheService cache.CacheService
-	dbService    db.DBService
-	itemService  item.ItemService
+	cacheService *cache.CacheService
+	dbService    *db.DBService
+	itemService  *item.ItemService
 	logger       zerolog.Logger
 	router       chi.Router
 }
 
 func New() (ChiServer, error) {
-	cacheService, err := cache.New()
-	if err != nil {
-		return ChiServer{}, fmt.Errorf("init cacheService: %w\n", err)
+	_, ok := os.LookupEnv("REDIS_HOST")
+	var err error
+	var cacheService *cache.CacheService
+	if ok {
+		cacheService, err = cache.New()
+		if err != nil {
+			return ChiServer{}, fmt.Errorf("init cacheService: %w\n", err)
+		}
 	}
+
 	dbService, err := db.New()
 	if err != nil {
 		return ChiServer{}, fmt.Errorf("init dbService: %w\n", err)
@@ -85,23 +91,28 @@ func (s ChiServer) SetRoutes() {
 	})
 
 	s.router.Get("/{key}", handlers.GetHandler(s.itemService))
-	s.router.Post("/{key}", handlers.SetHandler(s.itemService))
-	s.router.Delete("/{key}", handlers.DeleteHandler(s.itemService))
+	s.router.Post("/{key}", handlers.SetHandler(*s.itemService))
+	s.router.Delete("/{key}", handlers.DeleteHandler(*s.itemService))
 }
 
 func NewGRPC() (Server, error) {
-	cacheService, err := cache.New()
-	if err != nil {
-		return ChiServer{}, fmt.Errorf("init cacheService: %w\n", err)
+	_, ok := os.LookupEnv("REDIS_HOST")
+	var err error
+	var cacheService *cache.CacheService
+	if ok {
+		cacheService, err = cache.New()
+		if err != nil {
+			return GRPCServer{}, fmt.Errorf("init cacheService: %w\n", err)
+		}
 	}
 	dbService, err := db.New()
 	if err != nil {
-		return ChiServer{}, fmt.Errorf("init dbService: %w\n", err)
+		return GRPCServer{}, fmt.Errorf("init dbService: %w\n", err)
 	}
 
 	itemService, err := item.New(cacheService, dbService)
 	if err != nil {
-		return ChiServer{}, fmt.Errorf("init itemService: %w\n", err)
+		return GRPCServer{}, fmt.Errorf("init itemService: %w\n", err)
 	}
 
 	logger := httplog.NewLogger("kvs", httplog.Options{

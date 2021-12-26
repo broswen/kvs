@@ -17,7 +17,7 @@ type CacheService struct {
 	rdb *redis.Client
 }
 
-func New() (CacheService, error) {
+func New() (*CacheService, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
 		Password: "",
@@ -31,10 +31,14 @@ func New() (CacheService, error) {
 		ttlInSeconds = 3600
 	}
 
-	return CacheService{
+	return &CacheService{
 		ttl: ttlInSeconds,
 		rdb: rdb,
 	}, nil
+}
+
+func (cs *CacheService) IsNil() bool {
+	return cs == nil
 }
 
 func (cs CacheService) Get(key string) (items.Item, error) {

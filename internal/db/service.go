@@ -17,7 +17,7 @@ type DBService struct {
 	db *gorm.DB
 }
 
-func New() (DBService, error) {
+func New() (*DBService, error) {
 	sqliteDB, ok := os.LookupEnv("SQLITE_DB")
 	var db *gorm.DB
 	var err error
@@ -28,7 +28,7 @@ func New() (DBService, error) {
 	} else {
 		postgresHost, ok := os.LookupEnv("POSTGRES_HOST")
 		if !ok {
-			return DBService{}, errors.New("either SQLITE_DB or POSTGRES_HOST must be set")
+			return &DBService{}, errors.New("either SQLITE_DB or POSTGRES_HOST must be set")
 		}
 		postgresPort := os.Getenv("POSTGRES_PORT")
 		postgresUser := os.Getenv("POSTGRES_USER")
@@ -39,12 +39,16 @@ func New() (DBService, error) {
 	}
 
 	if err != nil {
-		return DBService{}, err
+		return &DBService{}, err
 	}
 	db.AutoMigrate(&item.Item{})
-	return DBService{
+	return &DBService{
 		db: db,
 	}, nil
+}
+
+func (dbs *DBService) IsNil() bool {
+	return dbs == nil
 }
 
 func (dbs DBService) Get(key string) (item.Item, error) {

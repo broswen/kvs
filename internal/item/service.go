@@ -40,6 +40,7 @@ type ItemGetterSetter interface {
 	Get(string) (Item, error)
 	Set(Item) error
 	Delete(string) error
+	IsNil() bool
 }
 
 type ItemService struct {
@@ -48,38 +49,45 @@ type ItemService struct {
 	config config.Config
 }
 
-func New(cache ItemGetterSetter, db ItemGetterSetter) (ItemService, error) {
+func New(cache ItemGetterSetter, db ItemGetterSetter) (*ItemService, error) {
 
-	return ItemService{
+	return &ItemService{
 		cache: cache,
 		db:    db,
 	}, nil
 }
 
+func (is *ItemService) IsNil() bool {
+	return is == nil
+}
+
 func (is ItemService) Get(key string) (Item, error) {
-	item, err := is.cache.Get(key)
-	if err == nil {
-		// found in cache, return
-		return item, nil
+	if !is.cache.IsNil() {
+		item, err := is.cache.Get(key)
+		if err == nil {
+			// found in cache, return
+			return item, nil
+		}
+		if errors.As(err, &ErrService{}) {
+			log.Printf("get cache: %v\n", err)
+		}
+
+		if errors.As(err, &ErrItemNotFound{}) {
+			log.Printf("cache miss: %v\n", err)
+		}
 	}
 
-	if errors.As(err, &ErrService{}) {
-		log.Printf("get cache: %v\n", err)
-	}
-
-	if errors.As(err, &ErrItemNotFound{}) {
-		log.Printf("cache miss: %v\n", err)
-	}
-
-	item, err = is.db.Get(key)
+	item, err := is.db.Get(key)
 	if err != nil {
 		// couldn't get from db, either err or not found
 		return Item{}, err
 	}
-	// item was found in db, set in cache
-	err = is.cache.Set(item)
-	if err != nil {
-		log.Printf("set cache: %v\n", err)
+	if !is.cache.IsNil() {
+		// item was found in db, set in cache
+		err = is.cache.Set(item)
+		if err != nil {
+			log.Printf("set cache: %v\n", err)
+		}
 	}
 
 	// return found item
@@ -92,10 +100,12 @@ func (is ItemService) Set(item Item) error {
 	if err != nil {
 		return ErrService{err}
 	}
-	// set in cache
-	err = is.cache.Set(item)
-	if err != nil {
-		return ErrService{err}
+	if !is.cache.IsNil() {
+		// set in cache
+		err = is.cache.Set(item)
+		if err != nil {
+			return ErrService{err}
+		}
 	}
 
 	return nil
@@ -107,9 +117,12 @@ func (is ItemService) Delete(key string) error {
 		return ErrService{err}
 	}
 
-	err = is.cache.Delete(key)
-	if err != nil {
-		return ErrService{err}
+	if !is.cache.IsNil() {
+		err = is.cache.Delete(key)
+		if err != nil {
+			return ErrService{err}
+		}
 	}
+
 	return nil
 }
