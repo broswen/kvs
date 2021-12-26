@@ -27,3 +27,4 @@ The `/k8s/helm` directory contains the Helm Chart to easily deploy the system, b
 ### TODO
 - [ ] Add flag to use sqlite file instead of postgres
 - [ ] Add flag to disable redis cache requirement
+- [ ] Update Helm chart to take database and cache parameters, but don't manage them
