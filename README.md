@@ -4,6 +4,11 @@ A key value webservice that is cached with Redis and backed by Postgres.
 
 ![diagram](kvs.png)
 
+### Installation
+```
+helm install my-release k8s/helm --set cache.host=kvs-redis-host,database.host=kvs-postgres-host
+```
+
 
 ### Usage
 `POST /{key}` with the request body as the `value`
@@ -28,3 +33,4 @@ The `/k8s/helm` directory contains the Helm Chart to easily deploy to a Kuberene
 - [x] Add SQLITE_DB env var to use local sqlite db instead of postgres
 - [x] Add env var to disable redis cache requirement
 - [x] Update Helm chart to take database and cache parameters, but don't manage them
+- [ ] Ignore cache if `Cache-Control: no-cache` header is passed
