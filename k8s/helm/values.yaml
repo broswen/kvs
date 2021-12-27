@@ -12,6 +12,7 @@ image:
 
 cache:
   ttl: 10
+  # leave host blank to disable cache
   host: redis-service
   port: 6379
 
@@ -22,6 +23,7 @@ database:
   db: kvs
   port: 5432
 
+# specify path to database file to use sqlite instead of postgres
 sqlite: ""
 
 imagePullSecrets: ["regcred"]
