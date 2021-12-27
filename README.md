@@ -20,8 +20,6 @@ Set the `TTL` environment variable to define how long Redis will cache key value
 
 
 ### Other
-The `/k8s` directory contains relevant Kubernetes files to deploy in a cluster.
-
 The `/k8s/helm` directory contains the Helm Chart to easily deploy the system, based on the files in the parent directory.
 
 ### TODO
