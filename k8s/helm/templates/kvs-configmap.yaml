@@ -11,4 +11,6 @@ data:
   postgres.db: {{ .Values.database.db }}
   redis.host: {{ .Values.cache.host }}
   redis.port: {{ .Values.cache.port | quote}}
+  {{ - if .Values.sqlite }}
   sqlite.db: {{ .Values.sqlite }}
+  {{ - end }}
