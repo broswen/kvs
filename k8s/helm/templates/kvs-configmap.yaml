@@ -5,7 +5,7 @@ metadata:
 data:
   port: {{ .Values.service.port | quote }}
   ttl: {{ .Values.cache.ttl | quote }}
-  postgres.host: {{ .Release.Name }}-postgres-service
+  postgres.host: {{ .Values.database.host }}
   postgres.port: {{ .Values.database.port | quote }}
   postgres.user: {{ .Values.database.user }}
   postgres.db: {{ .Values.database.db }}
