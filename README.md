@@ -18,9 +18,11 @@ Set the `PORT` environment variable to define the port the service listens on.
 
 Set the `TTL` environment variable to define how long Redis will cache key values.
 
+- If the Redis hostname isn't passed, the cache functionality is disabled.
+- If `SQLITE_DB` environment variable is set, Sqlite3 is used instead of Postgres.
 
-### Other
-The `/k8s/helm` directory contains the Helm Chart to easily deploy the system, based on the files in the parent directory.
+### Kubernetes and Helm
+The `/k8s/helm` directory contains the Helm Chart to easily deploy to a Kuberenetes cluster.
 
 ### TODO
 - [x] Add SQLITE_DB env var to use local sqlite db instead of postgres
