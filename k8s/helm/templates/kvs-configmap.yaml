@@ -9,5 +9,6 @@ data:
   postgres.port: {{ .Values.database.port | quote }}
   postgres.user: {{ .Values.database.user }}
   postgres.db: {{ .Values.database.db }}
-  redis.host: {{ .Release.Name }}-redis-service
-  redis.port: "6379"
+  redis.host: {{ .Values.cache.host }}
+  redis.port: {{ .Values.cache.port | quote}}
+  sqlite.db: {{ .Values.sqlite }}

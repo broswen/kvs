@@ -30,6 +30,13 @@ spec:
                 configMapKeyRef:
                   key: port
                   name: {{ .Release.Name }}-configmap
+            {{- if .Values.sqlite }}
+            - name: SQLITE_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: sqlite.db
+                  name: {{ .Release.Name }}-configmap
+            {{- end}}
             - name: POSTGRES_HOST
               valueFrom:
                 configMapKeyRef:
